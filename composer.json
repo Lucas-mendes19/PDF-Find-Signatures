@@ -1,0 +1,17 @@
+{
+    "name": "lukelt/pdf-signatures",
+    "description": "signature finder in pdf documents with OpenSSL",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Lukelt\\PdfSignatures\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Lucas Mendes",
+            "email": "lucas.mendes.carvalho14@gmail.com"
+        }
+    ],
+    "require": {}
+}
