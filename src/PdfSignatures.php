@@ -2,13 +2,20 @@
  
 namespace Lukelt\PdfSignatures;
 
+use Lukelt\PdfSignatures\helper\OpenSSL;
+use Lukelt\PdfSignatures\helper\Temp;
+
 class PdfSignatures
 {
+    use Temp, OpenSSL;
+
     private static string $file;
     private static string $content;
     private static array $displacements;
 
-    public static function find(string $file)
+    private static array $exec;
+
+    public static function find(string $file): array
     {
         $document = new Document($file);
 
@@ -22,9 +29,8 @@ class PdfSignatures
     {
         $result = [];
         $regexp = '#ByteRange\[\s*(\d+) (\d+) (\d+)#';
-        $content = file_get_contents(self::$file);
         
-        preg_match_all($regexp, $content, $result);  
+        preg_match_all($regexp, self::$content, $result);  
         unset($result[0], $result[1]);
 
         for ($index = 0; $index < count($result[2]); $index++) { 
@@ -51,12 +57,12 @@ class PdfSignatures
                 
                 fclose($stream);
                 
-                $pathCertificate = Document::tempPath('pfx_', 'pfx');
+                $pathCertificate = self::path('pfx_', 'pfx');
                 file_put_contents($pathCertificate, hex2bin($signature));
             }
         
-            $pathText = Document::tempPath('der_', 'txt');
-            self::openSSL($pathCertificate, $pathText);
+            $pathText = self::path('der_', 'txt');
+            self::exec($pathCertificate, $pathText);
             unlink($pathCertificate);
 
             $data = self::processCertificate($pathText);
@@ -67,12 +73,6 @@ class PdfSignatures
         }
 
         return $signaturesContent;
-    }
-
-    public static function openSSL(string $pathInput, string $pathOutput): void
-    {
-        $openSslCommand = "openssl pkcs7 -in {$pathInput} -inform DER -print_certs > {$pathOutput}";
-        shell_exec($openSslCommand);
     }
 
     public static function processCertificate(string $path): array
