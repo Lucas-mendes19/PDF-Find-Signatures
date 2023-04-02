@@ -2,6 +2,7 @@
  
 namespace Lukelt\PdfSignatures;
 
+use Exception;
 use Lukelt\PdfSignatures\helper\OpenSSL;
 use Lukelt\PdfSignatures\helper\Temp;
 
@@ -15,7 +16,7 @@ class PdfSignatures
 
     private static array $exec;
 
-    public static function find(string $file): array
+    public static function find(string $file)
     {
         $document = new Document($file);
 
@@ -25,18 +26,22 @@ class PdfSignatures
         return self::displacementFind()::signatures();
     }
 
-    public static function displacementFind(): string
+    public static function displacementFind()
     {
         $result = [];
         $regexp = '#ByteRange\[\s*(\d+) (\d+) (\d+)#';
         
         preg_match_all($regexp, self::$content, $result);  
         unset($result[0], $result[1]);
+        $point = array_filter($result);
+
+        if (empty($point))
+            throw new Exception("Does not have digital signatures");
 
         for ($index = 0; $index < count($result[2]); $index++) { 
             self::$displacements[] = [
-                'start' => $result[2][$index],
-                'end' => $result[3][$index]
+                'start' => $point[2][$index],
+                'end' => $point[3][$index]
             ];
         }
 
@@ -75,22 +80,9 @@ class PdfSignatures
         return $signaturesContent;
     }
 
-    public static function processCertificate(string $path): array
+    private static function processCertificate(string $path): array
     {
-        $data = [];
-        $content = null;
-        
-        $lines = file($path);
-        foreach ($lines as $line) {
-            if (strlen($line) === 2) {
-                $data[] = $content;
-                $content = null;
-                continue;
-            }
-        
-            $content .= $line;
-        }
-
-        return $data;
+        $data = preg_split("/\\n\\r/", file_get_contents($path));
+        return array_filter($data, fn($cert) => strlen($cert) > 2);
     }
 }
