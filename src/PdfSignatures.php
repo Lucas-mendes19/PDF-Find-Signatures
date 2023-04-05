@@ -14,8 +14,6 @@ class PdfSignatures
     private static string $content;
     private static array $displacements;
 
-    private static array $exec;
-
     public static function find(string $file)
     {
         $document = new Document($file);
@@ -26,7 +24,7 @@ class PdfSignatures
         return self::displacementFind()::signatures();
     }
 
-    public static function displacementFind()
+    public static function displacementFind(): mixed
     {
         $result = [];
         $regexp = '#ByteRange\[\s*(\d+) (\d+) (\d+)#';
@@ -74,7 +72,7 @@ class PdfSignatures
             unlink($pathText);
 
             $plainTextContent = openssl_x509_parse(end($data));
-            $signaturesContent[] = $plainTextContent;
+            $signaturesContent[] = new Certificate($plainTextContent);
         }
 
         return $signaturesContent;
