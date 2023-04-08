@@ -2,23 +2,25 @@
 
 namespace Lukelt\PdfSignatures;
 
-use DateTime;
-
 class Certificate
 {
-    // private readonly array $data;
+    private readonly array $data;
 
     public readonly string $version;
     public readonly string $name;
+    public readonly string $identifier;
     public readonly array $issuer;
     public readonly array $validity;
 
     public function __construct(array $data, string $format = 'Y-m-d H:i:s')
     {
-        // $this->data = $data;
-
+        $this->data = $data;
         $this->version = $data['version'];
-        $this->name = $data['subject']['CN'];
+        
+        $subject = explode(':', $data['subject']['CN']);
+        $this->name = $subject[0];
+        $this->identifier = $subject[1];
+
         $this->issuer($data);
         $this->validity($data, $format);
     }

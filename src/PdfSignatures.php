@@ -71,16 +71,17 @@ class PdfSignatures
             $data = self::processCertificate($pathText);
             unlink($pathText);
 
-            $plainTextContent = openssl_x509_parse(end($data));
+            $plainTextContent = openssl_x509_parse($data);
             $signaturesContent[] = new Certificate($plainTextContent);
         }
 
         return $signaturesContent;
     }
 
-    private static function processCertificate(string $path): array
+    private static function processCertificate(string $path): string
     {
         $data = preg_split("/\\n\\r/", file_get_contents($path));
-        return array_filter($data, fn($cert) => strlen($cert) > 2);
+        $info = array_filter($data, fn($cert) => strlen($cert) > 2);
+        return end($info);
     }
 }
