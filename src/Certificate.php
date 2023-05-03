@@ -2,6 +2,9 @@
 
 namespace Lukelt\PdfSignatures;
 
+/**
+ * Certificate entity
+ */
 class Certificate
 {
     private readonly array $data;
@@ -12,6 +15,11 @@ class Certificate
     public readonly array $issuer;
     public readonly array $validity;
 
+    /**
+     * @param array $data certificate data
+     * @param string $format date format
+     * @return void
+     */
     public function __construct(array $data, string $format = 'Y-m-d H:i:s')
     {
         $this->data = $data;
@@ -25,6 +33,11 @@ class Certificate
         $this->validity($data, $format);
     }
 
+    /**
+     * filter information from issuer
+     * @param array $data certificate data
+     * @return array
+     */
     private function issuer($data): array
     {
         return $this->issuer = [
@@ -33,6 +46,12 @@ class Certificate
         ];
     }
 
+    /**
+     * filter information from validity
+     * @param array $data certificate data
+     * @param string $format date format
+     * @return array
+     */
     private function validity($data, string $format = 'Y-m-d H:i:s'): array
     {
         return $this->validity = [

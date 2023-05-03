@@ -6,6 +6,10 @@ use Exception;
 use Lukelt\PdfSignatures\helper\OpenSSL;
 use Lukelt\PdfSignatures\helper\Temp;
 
+/**
+ * Used for mapping PDF data by searching and returning their positions in the digital signature,
+ * where it converts the information to a digital certificate and its information
+ */
 class PdfSignatures
 {
     use Temp, OpenSSL;
@@ -14,7 +18,13 @@ class PdfSignatures
     private static string $content;
     private static array $displacements;
 
-    public static function find(string $file)
+    /**
+     * Returns digital signatures with your information
+     *
+     * @param string $file content file or path file
+     * @return array
+     */
+    public static function find(string $file): array
     {
         $document = new Document($file);
 
@@ -24,6 +34,10 @@ class PdfSignatures
         return self::displacementFind()::signatures();
     }
 
+    /**
+     * Search positions of digital signatures
+     * @return mixed
+     */
     public static function displacementFind(): mixed
     {
         $result = [];
@@ -46,6 +60,11 @@ class PdfSignatures
         return self::class;
     }
 
+    /**
+     * Fetch the digital signature information by converting and processing
+     * the certificate and returning its information
+     * @return array
+     */
     public static function signatures(): array
     {
         $signaturesContent = [];
@@ -78,6 +97,10 @@ class PdfSignatures
         return $signaturesContent;
     }
 
+    /**
+     * Process the digital certificate information
+     * @return string
+     */
     private static function processCertificate(string $path): string
     {
         $data = preg_split("/\\n\\r/", file_get_contents($path));
