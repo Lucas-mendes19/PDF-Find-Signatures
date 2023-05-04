@@ -2,13 +2,16 @@
 
 namespace Lukelt\PdfSignatures;
 
-use InvalidArgumentException;
+use Exception;
+use Lukelt\PdfSignatures\helper\Temp;
 
 /**
  * Document entity
  */
 class Document
 {
+    use Temp;
+
     public readonly string $file;
     public readonly string $content;
 
@@ -18,11 +21,16 @@ class Document
      */
     public function __construct(string $file)
     {
+        if (file_exists($file) && pathinfo($file)['extension'] !== 'pdf')
+            throw new Exception("Invalid document format.");
+        
+        if (!file_exists($file)) {
+            $pathFile = $this->path('file_', 'pdf');
+            file_put_contents($pathFile, $file);
+            $file = $pathFile;
+        }
+
         $this->file = $file;
-
-        if (!file_exists($this->file) || pathinfo($this->file)['extension'] !== 'pdf')
-            throw new InvalidArgumentException("Document not found.");
-
         $this->content();
     }
 
@@ -32,6 +40,6 @@ class Document
      */
     private function content(): void
     {
-        $this->content =  file_get_contents($this->file);
+        $this->content = file_get_contents($this->file);
     }
 }

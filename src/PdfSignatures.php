@@ -16,6 +16,7 @@ class PdfSignatures
 
     private static string $file;
     private static string $content;
+    private static string $format;
     private static array $displacements;
 
     /**
@@ -24,14 +25,14 @@ class PdfSignatures
      * @param string $file content file or path file
      * @return array
      */
-    public static function find(string $file): array
+    public static function find(string $file, string $format = 'Y-m-d H:i:s'): array
     {
         $document = new Document($file);
 
         self::$file = $document->file;
         self::$content = $document->content;
 
-        return self::displacementFind()::signatures();
+        return self::displacementFind()::signatures($format);
     }
 
     /**
@@ -65,7 +66,7 @@ class PdfSignatures
      * the certificate and returning its information
      * @return array
      */
-    public static function signatures(): array
+    public static function signatures($format): array
     {
         $signaturesContent = [];
 
@@ -91,7 +92,7 @@ class PdfSignatures
             unlink($pathText);
 
             $plainTextContent = openssl_x509_parse($data);
-            $signaturesContent[] = new Certificate($plainTextContent);
+            $signaturesContent[] = new Certificate($plainTextContent, $format);
         }
 
         return $signaturesContent;
