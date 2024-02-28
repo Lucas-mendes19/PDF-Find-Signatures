@@ -14,7 +14,7 @@ Download: **https://www.openssl.org/source/**.
 
 If your environment is Windows, you can download the executable from this link: **https://slproweb.com/products/Win32OpenSSL.html**
 
-### Recomendação
+### Recommendation
 
 Preferably place the OpenSSL bin folder in your environment variable. For code reduction in your application.
 
